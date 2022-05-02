@@ -20,7 +20,7 @@ public class ContornoDetector {
     }
 
     public void detectarContorno() {
-        File grey = blureador();
+        File grey = blureador(file,4);
         ArrayList<int[]> lista = new ArrayList<>();
         try {
             BufferedImage img = ImageIO.read(grey);
@@ -35,7 +35,7 @@ public class ContornoDetector {
                             int nuevo = rgb(img, i + k, j + l);
                             if (nuevo != -1) {
                                 Color newColor = new Color(nuevo);
-                                if (Math.abs(color.getRed() - newColor.getRed()) > threshold) {
+                                if (Math.abs(color.getRed() - newColor.getRed()) > threshold || Math.abs(color.getBlue() - newColor.getBlue()) > threshold || Math.abs(color.getGreen() - newColor.getGreen()) > threshold) {
                                     numeroPixeles++;
                                     if (numeroPixeles >= numeroPixelesDiferentes) {
                                         int[] pixelesDeI = {i, j};
@@ -97,13 +97,14 @@ public class ContornoDetector {
         }
         return -1;
     }
-    private int red(BufferedImage img, int x, int y) {
+    private int[] red(BufferedImage img, int x, int y) {
         if (comprobator(img, x, y)) {
             int pa= img.getRGB(x, y);
             Color color=new Color(pa);
-            return color.getRed();
+            int [] colores={color.getRed(),color.getGreen(),color.getBlue()};
+            return colores;
         }
-        return -1;
+        return null;
     }
 
 
@@ -141,8 +142,10 @@ public class ContornoDetector {
         return null;
     }
 
-    public File blureador() {
-        File grey=greyConverterBuffered();
+    public File blureador(File file,int nivel) {
+        File grey=file;
+
+
 
         try {
             BufferedImage img = ImageIO.read(grey);
@@ -150,20 +153,27 @@ public class ContornoDetector {
             List<Pixelmon>lista=new ArrayList<>();
             for (int i = 0; i < img.getWidth(); i++) {
                 for (int j = 0; j < img.getHeight(); j++) {
-                    int contable=0;
+                    int r=0;
+                    int g=0;
+                    int b=0;
                     int pixels=0;
-                    for (int k = -1; k < 2; k++) {
-                        for (int l = -1; l < 2; l++) {
-                            int nuevo = red(img, i + k, j + l);
-                            if (nuevo != -1) {
+                    for (int k = 1-nivel; k < nivel; k++) {
+                        for (int l = -nivel; l < nivel; l++) {
+                            int [] nuevo = red(img, i + k, j + l);
+                            if (nuevo != null) {
                                 pixels++;
-                                contable+=nuevo;
+                                r+=nuevo[0];
+                                g+=nuevo[1];
+                                b+=nuevo[2];
 
                             }
                         }
                     }
-                    int media=contable/pixels;
-                    Color color=new Color(media,media,media);
+                    int rMedia=r/pixels;
+                    int gMedia=g/pixels;
+                    int bMedia=b/pixels;
+
+                    Color color=new Color(rMedia,gMedia,bMedia);
                     Pixelmon pixelmon=new Pixelmon(i,j,color);
 
 
@@ -187,4 +197,91 @@ public class ContornoDetector {
         }
         return null;
     }
+    public File contrastador(File file) {
+        File grey =file;
+        int contraste = 20;
+        int threshold = getLuminosidad(file);
+
+        try {
+            BufferedImage img = ImageIO.read(grey);
+
+            for (int i = 0; i < img.getWidth(); i++) {
+                for (int j = 0; j < img.getHeight(); j++) {
+                    Color color = new Color(img.getRGB(i, j));
+                    int red;
+                    if (color.getRed() > threshold-30) {
+                        red = color.getRed();
+
+                    } else {
+                        red = color.getRed() - contraste;
+                        if (red < 0) {
+                            red = 0;
+                        }
+                    }
+                    Color contrasted = new Color(red, red, red);
+                    img.setRGB(i, j, contrasted.getRGB());
+
+                }
+            }
+
+
+            File fileModified = new File("imagenContrastada.jpg");
+            ImageIO.write(img, "jpg", fileModified);
+            return fileModified;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    public int getLuminosidad(File file) {
+        File grey = file;
+
+
+        try {
+            BufferedImage img = ImageIO.read(grey);
+
+            double contator=0;
+            for (int i = 0; i < img.getWidth(); i++) {
+                for (int j = 0; j < img.getHeight(); j++) {
+                    Color color = new Color(img.getRGB(i, j));
+                    contator+=color.getRed();
+
+                    }
+                }
+            double media=contator/ (img.getHeight()* img.getWidth());
+            System.out.println(media);
+
+            return (int) media;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    public File borrator(File file) {
+        File grey = file;
+
+        try {
+            BufferedImage img = ImageIO.read(grey);
+            int luminosidad=getLuminosidad(file);
+
+            for (int i = 0; i < img.getWidth(); i++) {
+                for (int j = 0; j < img.getHeight(); j++) {
+                    Color color = new Color(img.getRGB(i, j));
+                    if (color.getRed()>luminosidad+((255-luminosidad)/3)){
+                        img.setRGB(i,j,Color.white.getRGB());
+                    }
+                }
+            }
+
+
+            File fileModified = new File("imagenBorreada.jpg");
+            ImageIO.write(img, "jpg", fileModified);
+            return fileModified;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }
