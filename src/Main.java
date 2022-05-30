@@ -5,15 +5,15 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        File file=new File("god.jpg");
+        File file=new File("cuadrado.jpg");
         File file1=new File("gorila.jpg");
         BufferedImage i= ImageIO.read(file);
 
-        ContornoDetector cd=new ContornoDetector(file,10);
+        ContornoDetector cd=new ContornoDetector(file,20);
 
 
-            cd.blender(file1);
-        System.out.println(i.getType());
+            cd.detectarContorno(1);
+
 
     }
 }
