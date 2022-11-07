@@ -9,20 +9,25 @@ import java.util.List;
 
 public class ContornoDetector {
     File file;
-    int threshold;
-    int numeroPixelesDiferentes;
 
-    public ContornoDetector(File file, int threshold) {
+
+
+    public ContornoDetector(File file) {
         if (file.exists()) {
             this.file = file;
-            this.threshold = threshold;
+
 
         }
     }
 
-    public void detectarContorno(int nivel) {
-
-        File grey = blureador(file, nivel);
+    public void detectarContorno(boolean mejorador,int nivel,int threshold) {
+        File grey ;
+        if (mejorador){
+            File mejor=mejorador(file);
+            grey=blureador(mejor,nivel);
+        }else {
+            grey = blureador(file, nivel);
+        }
         ArrayList<int[]> lista = new ArrayList<>();
 
 
@@ -36,46 +41,45 @@ public class ContornoDetector {
 
                     int[] position = {i, j};
 
-                    int menosmenos = rgb(img, i - 1, j - 1);
-                    Color un = new Color(menosmenos);
-                    int ceromenos = rgb(img, i, j - 1);
-                    Color dos = new Color(ceromenos);
-                    int unomenos = rgb(img, i + 1, j - 1);
-                    Color tres = new Color(unomenos);
-                    int menoscero = rgb(img, i - 1, j);
-                    Color cuatro = new Color(menoscero);
-                    int unocero = rgb(img, i + 1, j);
-                    Color cinco = new Color(unocero);
-                    int menosuno = rgb(img, i - 1, j + 1);
-                    Color seis = new Color(menosuno);
-                    int cerouno = rgb(img, i, j + 1);
-                    Color siete = new Color(cerouno);
-                    int ununo = rgb(img, i + 1, j + 1);
-                    Color ocho = new Color(ununo);
+
+                    Pixelmon un = new Pixelmon(i-1,j-1,new Color(rgb(img,i-1,j-1)));
+                    Pixelmon dos = new Pixelmon(i,j-1,new Color(rgb(img,i,j-1)));
+                    Pixelmon tres = new Pixelmon(i+1,j-1,new Color(rgb(img,i+1,j-1)));
+                    Pixelmon cuatro = new Pixelmon(i-1,j,new Color(rgb(img,i-1,j)));
+                    Pixelmon cinco = new Pixelmon(i+1,j,new Color(rgb(img,i+1,j)));
+                    Pixelmon seis = new Pixelmon(i-1,j+1,new Color(rgb(img,i-1,j+1)));
+                    Pixelmon siete = new Pixelmon(i,j+1,new Color(rgb(img,i,j+1)));
+                    Pixelmon ocho = new Pixelmon(i+1,j+1,new Color(rgb(img,i+1,j+1)));
+//                    Pixelmon[]arr=new Pixelmon[]{un,dos,tres,cuatro,cinco,seis,siete,ocho};
+//                    for (int pisel=0;i< arr.length;i++){
+//                        if (arr[pisel].getColor().getRGB()<color.getRGB()){
+//                            position=new int[]{arr[pisel].getX(),arr[pisel].getY()};
+//                        }
+//                    }
 
 
-                    if (esDiferent(color, un, threshold) && esDiferent(color, dos, threshold) && esDiferent(color, tres, threshold)) {
+                    if (esDiferent(color, un.getColor(), threshold) && esDiferent(color, dos.getColor(), threshold) && esDiferent(color, tres.getColor(), threshold)) {
                         lista.add(position);
 
-                    } else if (esDiferent(color, un, threshold) && esDiferent(color, dos, threshold) && esDiferent(color, cuatro, threshold)) {
+                    } else if (esDiferent(color, un.getColor(), threshold) && esDiferent(color, dos.getColor(), threshold) && esDiferent(color, cuatro.getColor(), threshold)) {
                         lista.add(position);
 
-                    } else if (esDiferent(color, tres, threshold) && esDiferent(color, dos, threshold) && esDiferent(color, cinco, threshold)) {
+                    } else if (esDiferent(color, tres.getColor(), threshold) && esDiferent(color, dos.getColor(), threshold) && esDiferent(color, cinco.getColor(), threshold)) {
                         lista.add(position);
 
-                    } else if (esDiferent(color, un, threshold) && esDiferent(color, cuatro, threshold) && esDiferent(color, seis, threshold)) {
+                    } else if (esDiferent(color, un.getColor(), threshold) && esDiferent(color, cuatro.getColor(), threshold) && esDiferent(color, seis.getColor(), threshold)) {
                         lista.add(position);
 
-                    } else if (esDiferent(color, seis, threshold) && esDiferent(color, cuatro, threshold) && esDiferent(color, siete, threshold)) {
+                    } else if (esDiferent(color, seis.getColor(), threshold) && esDiferent(color, cuatro.getColor(), threshold) && esDiferent(color, siete.getColor(), threshold)) {
                         lista.add(position);
 
-                    } else if (esDiferent(color, seis, threshold) && esDiferent(color, siete, threshold) && esDiferent(color, ocho, threshold)) {
+                    } else if (esDiferent(color, seis.getColor(), threshold) && esDiferent(color, siete.getColor(), threshold) && esDiferent(color, ocho.getColor(), threshold)) {
                         lista.add(position);
 
-                    } else if (esDiferent(color, tres, threshold) && esDiferent(color, cinco, threshold) && esDiferent(color, ocho, threshold)) {
+                    } else if (esDiferent(color, tres.getColor(), threshold) && esDiferent(color, cinco.getColor(), threshold) && esDiferent(color, ocho.getColor(), threshold)) {
                         lista.add(position);
 
-                    } else if (esDiferent(color, siete, threshold) && esDiferent(color, ocho, threshold) && esDiferent(color, cinco, threshold)) {
+                    } else if (esDiferent(color, siete.getColor(), threshold) && esDiferent(color, ocho.getColor(), threshold) && esDiferent(color, cinco.getColor(), threshold)) {
                         lista.add(position);
 
                     }
@@ -95,16 +99,70 @@ public class ContornoDetector {
                 contornoPuro.setRGB(posicion[0], posicion[1], Color.black.getRGB());
             }
             File fileModified = new File("contornoPillao.jpg");
-            ImageIO.write(img, "jpg", fileModified);
+            ImageIO.write(filtrator(img), "jpg", fileModified);
             File fileContorno = new File("contornoPuro.jpg");
+            File fileFiltrato=new File("contornoFiltrato.jpg");
             ImageIO.write(contornoPuro, "jpg", fileContorno);
+
+            ImageIO.write(filtrator(contornoPuro), "jpg", fileFiltrato);
 
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+    private BufferedImage filtrator (BufferedImage img ) {
+        for (int i = 0; i < img.getWidth(); i++) {
+            for (int j = 0; j < img.getHeight(); j++) {
+                int reference = img.getRGB(i, j);
+                Color color = new Color(reference);
+                Color colorBlack=new Color(0,0,0);
+                Color colorWhite=new Color(255,255,255);
+                if (color.getRGB() == colorBlack.getRGB()){
+                int menosmenos = rgb(img, i - 1, j - 1);
+                Color un = new Color(menosmenos);
+                int ceromenos = rgb(img, i, j - 1);
+                Color dos = new Color(ceromenos);
+                int unomenos = rgb(img, i + 1, j - 1);
+                Color tres = new Color(unomenos);
+                int menoscero = rgb(img, i - 1, j);
+                Color cuatro = new Color(menoscero);
+                int unocero = rgb(img, i + 1, j);
+                Color cinco = new Color(unocero);
+                int menosuno = rgb(img, i - 1, j + 1);
+                Color seis = new Color(menosuno);
+                int cerouno = rgb(img, i, j + 1);
+                Color siete = new Color(cerouno);
+                int ununo = rgb(img, i + 1, j + 1);
+                Color ocho = new Color(ununo);
 
+
+                if (un.getRGB()==colorBlack.getRGB() && dos.getRGB()==colorBlack.getRGB() && tres.getRGB()==colorBlack.getRGB()) {
+                    img.setRGB(i,j,Color.black.getRGB());
+
+                } else if (un.getRGB()==colorBlack.getRGB() && dos.getRGB()==colorBlack.getRGB() && cuatro.getRGB()==colorBlack.getRGB()) {
+                    img.setRGB(i,j,Color.black.getRGB());
+                } else if (tres.getRGB()==colorBlack.getRGB() && dos.getRGB()==colorBlack.getRGB() && cinco.getRGB()==colorBlack.getRGB()) {
+                    img.setRGB(i,j,Color.black.getRGB());
+                } else if (un.getRGB()==colorBlack.getRGB() && cuatro.getRGB()==colorBlack.getRGB() && seis.getRGB()==colorBlack.getRGB()) {
+                    img.setRGB(i,j,Color.black.getRGB());
+                } else if (seis.getRGB()==colorBlack.getRGB() && cuatro.getRGB()==colorBlack.getRGB() && siete.getRGB()==colorBlack.getRGB()) {
+                    img.setRGB(i,j,Color.black.getRGB());
+                } else if (seis.getRGB()==colorBlack.getRGB() && siete.getRGB()==colorBlack.getRGB()&& ocho.getRGB()==colorBlack.getRGB()) {
+                    img.setRGB(i,j,Color.black.getRGB());
+
+                } else if (tres.getRGB()==colorBlack.getRGB()&& cinco.getRGB()==colorBlack.getRGB() && ocho.getRGB()==colorBlack.getRGB()) {
+                    img.setRGB(i,j,Color.black.getRGB());
+                } else if (siete.getRGB()==colorBlack.getRGB() && ocho.getRGB()==colorBlack.getRGB() && cinco.getRGB()==colorBlack.getRGB()){
+                    img.setRGB(i,j,Color.black.getRGB());
+                }else {
+                    img.setRGB(i,j,Color.white.getRGB());
+                }
+            }
+            }
+        }
+        return img;
+    }
 
     private boolean esDiferent(Color color, Color newColor, int threshold) {
         return Math.abs(color.getRed() - newColor.getRed()) > threshold || Math.abs(color.getBlue() - newColor.getBlue()) > threshold || Math.abs(color.getGreen() - newColor.getGreen()) > threshold;
@@ -194,7 +252,7 @@ public class ContornoDetector {
     }
 
     public File blureador(File file, int nivel) {
-        File grey = mejorador(file);
+        File grey =file;
         if (nivel == 1) {
             return file;
         } else

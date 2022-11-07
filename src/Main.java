@@ -5,14 +5,13 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        File file=new File("cuadrado.jpg");
-        File file1=new File("gorila.jpg");
+        File file=new File("17009.jpg");
         BufferedImage i= ImageIO.read(file);
 
-        ContornoDetector cd=new ContornoDetector(file,20);
+        ContornoDetector cd=new ContornoDetector(file);
 
 
-            cd.detectarContorno(1);
+            cd.detectarContorno(false,3,3);
 
 
     }
