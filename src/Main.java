@@ -5,12 +5,12 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        File file=new File("17009.jpg");
+        File file=new File("ilulu.jpeg");
 
 
         ContornoDetector cd=new ContornoDetector(file);
 
-        cd.prisma();
+        cd.detectarContorno(false,2,5,"cosita");
 
 
 

@@ -310,7 +310,7 @@ public class ContornoDetector {
         return null;
     }
 
-    public File prisma() {
+    public File prisma(int level) {
         try {
 
             BufferedImage img = ImageIO.read(file);
@@ -320,7 +320,7 @@ public class ContornoDetector {
                     contornoPuro.setRGB(i, y, Color.white.getRGB());
                 }
             }
-            int divisor = 40;
+            int divisor = level;
 
             for (int i = 0; i < img.getWidth(); i += divisor) {
 
@@ -330,11 +330,48 @@ public class ContornoDetector {
 
                     int limite = 0;
                     boolean state = false;
+                    Color color1=Color.ORANGE;
+                    int r = 0;
+                    int g = 0;
+                    int b = 0;
+                    int rojo=0;
+                    int green=0;
+                    int blue=0;
+                    int pixels = 0;
+                    for (int k = i; k < i + divisor; k++) {
+                        for (int w = j; w < j + limite; w++) {
 
+                            int[] nuevo = red(img, k, w);
+                            if (nuevo != null) {
+                                pixels++;
+                                r += nuevo[0];
+                                g += nuevo[1];
+                                b += nuevo[2];
+                            }
+                        }
+                        if (state) {
+                            limite--;
+                        } else
+                            limite++;
+                        if (limite == divisor / 2) {
+                            state = true;
+                        }
+
+
+                    }
+                    if (pixels!=0) {
+                        rojo = r / pixels;
+                        green = g / pixels;
+                        blue = b / pixels;
+                        color1 = new Color(rojo, green, blue);
+                    }
+                    limite = 0;
+
+                    state=false;
                     for (int k = i; k < i + divisor; k++) {
                         for (int w = j; w < j + limite; w++) {
                             if (comprobator(contornoPuro, k, w)) {
-                                contornoPuro.setRGB(k, w, Color.black.getRGB());
+                                contornoPuro.setRGB(k, w, color1.getRGB());
                             }
 
 
@@ -351,13 +388,51 @@ public class ContornoDetector {
                     }
 
 
-                    int variableS =0;
+                    int variableS = 0;
+
+                    r = 0;
+                    g = 0;
+                    b = 0;
+                    pixels = 0;
+                    limite = 0;
+                    System.out.println("x: "+i+" y: "+j);
+
                     for (int k = i; k < i + divisor / 2; k++) {
 
 
-                        for (int w = j+variableS; w < j+divisor + limite; w++) {
+                        for (int w = j + variableS; w < j + divisor + limite; w++) {
+
+                            int[] nuevo = red(img, k, w);
+                            if (nuevo != null) {
+                                pixels++;
+                                r += nuevo[0];
+                                g += nuevo[1];
+                                b += nuevo[2];
+                            }
+
+                        }
+                        limite--;
+
+                        variableS++;
+
+
+                    }
+                    if (pixels!=0) {
+                        rojo = r / pixels;
+                        green = g / pixels;
+                        blue = b / pixels;
+                        color1 = new Color(rojo, green, blue);
+                    }
+
+                    variableS = 0;
+                    limite = 0;
+
+                    for (int k = i; k < i + divisor / 2; k++) {
+
+
+                        for (int w = j + variableS; w < j + divisor + limite; w++) {
                             if (comprobator(contornoPuro, k, w)) {
-                                contornoPuro.setRGB(k, w, Color.red.getRGB());
+                                contornoPuro.setRGB(k, w, color1.getRGB());
                             }
 
 
@@ -368,12 +443,21 @@ public class ContornoDetector {
 
 
                     }
-                    variableS=0;
+                    variableS = -divisor / 2;
+                    r = 0;
+                    g = 0;
+                    b = 0;
+                    pixels = 0;
+                    limite = 0;
                     for (int k = i + divisor / 2; k < i + divisor; k++) {
 
-                        for (int w = j +(divisor/2) + variableS; w < j +(divisor/2)+ limite; w++) {
-                            if (comprobator(contornoPuro, k, w)) {
-                                contornoPuro.setRGB(k, w, Color.blue.getRGB());
+                        for (int w = j + divisor + variableS; w < j + divisor + limite; w++) {
+                            int[] nuevo = red(img, k, w);
+                            if (nuevo != null) {
+                                pixels++;
+                                r += nuevo[0];
+                                g += nuevo[1];
+                                b += nuevo[2];
                             }
 
 
@@ -382,13 +466,70 @@ public class ContornoDetector {
 
                         variableS--;
                     }
+                    if (pixels!=0) {
+                        rojo = r / pixels;
+                        green = g / pixels;
+                        blue = b / pixels;
+                        color1 = new Color(rojo, green, blue);
+                    }
+
+
+                    variableS = -divisor / 2;
+                    limite = 0;
+                    for (int k = i + divisor / 2; k < i + divisor; k++) {
+
+                        for (int w = j + divisor + variableS; w < j + divisor + limite; w++) {
+                            if (comprobator(contornoPuro, k, w)) {
+                                contornoPuro.setRGB(k, w, color1.getRGB());
+                            }
+
+
+                        }
+                        limite++;
+
+                        variableS--;
+                    }
+                    state = true;
+                    r = 0;
+                    g = 0;
+                    b = 0;
+                    pixels = 0;
+                    limite = 0;
+                    for (int k = i; k < i + divisor; k++) {
+                        for (int w = j + divisor; w > j + divisor - limite - 1; w--) {
+                            int[] nuevo = red(img, k, w);
+                            if (nuevo != null) {
+                                pixels++;
+                                r += nuevo[0];
+                                g += nuevo[1];
+                                b += nuevo[2];
+                            }
+
+                        }
+                        if (state) {
+                            limite++;
+                        } else
+                            limite--;
+                        if (limite == divisor / 2) {
+                            state = false;
+                        }
+
+
+                    }
+                    if (pixels!=0) {
+                        rojo = r / pixels;
+                        green = g / pixels;
+                        blue = b / pixels;
+                        color1 = new Color(rojo, green, blue);
+                    }
 
 
                     state = true;
+                    limite = 0;
                     for (int k = i; k < i + divisor; k++) {
                         for (int w = j + divisor; w > j + divisor - limite - 1; w--) {
                             if (comprobator(contornoPuro, k, w)) {
-                                contornoPuro.setRGB(k, w, Color.green.getRGB());
+                                contornoPuro.setRGB(k, w, color1.getRGB());
                             }
 
 
